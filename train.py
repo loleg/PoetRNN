@@ -12,20 +12,29 @@ import cPickle as pickle
 
 
 def main(params):
+
     # create vocab dictionary
     data_filename = os.path.join('data', params['dataset'])
+
+    # create character to number dictionary for the poems to be parsed
     poem_dict = prep.generate_dictionary(data_filename)
+
     vocab_size = len(poem_dict)
     # load poems
     poems = []
     labels = []
+
     with open(data_filename, 'rb') as my_file:
         reader = csv.reader(my_file)
         for row in reader:
-            poems.append(prep.poem_to_mat(row[0], poem_dict))
+            poem = prep.poem_to_mat(row[0], poem_dict)
+            poems.append(poem)
     # generate the labels
+
     for poem in poems:
         labels.append(prep.generate_labels(poem, poem_dict))
+
+
     # convert to numpy arrays
     poems = np.array(poems)
     labels = np.array(labels)
@@ -45,7 +54,7 @@ def main(params):
             loss_function = RNN.LSTM_cost
         elif params['num_layers'] == 2:
             model = RNN.LSTM.init_two_layer(vocab_size, params['hidden_size'], params['hidden_size'], vocab_size)
-            # add dictinoary to model
+            # add dictionary to model
             model['dictionary'] = poem_dict
             loss_function = RNN.two_layer_LSTM_cost
         else:

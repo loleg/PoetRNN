@@ -25,8 +25,7 @@ letters = np.array(
 def generate_dictionary(location):
     with open(location, 'rb') as my_file:
         reader = csv.reader(my_file)
-        char_to_nums = {}
-        char_to_nums['\t'] = 0  # we use this as a special character later
+        char_to_nums = {'\t': 0}
         for row in reader:
             for letter in row[0]:
                 if letter not in char_to_nums.keys():
@@ -66,13 +65,12 @@ def poem_batch_to_tensor(X, y=None):
     # print b,v
     len_list = np.array([len(X[i]) for i in range(b)])
     m = np.max(len_list)
-    num_chars = np.sum(len_list)  # useful for
-    # pad with zeros so they are all same length
-    X_mat = np.array([np.vstack((np.array(X[i]), np.zeros((m - len_list[i], v)))) for i in range(b)])
-    X_mat = np.swapaxes(X_mat, 0, 1)
+    num_chars = np.sum(len_list)  # useful to pad with zeros so they are all same length
+    x_mat = np.array([np.vstack((np.array(X[i]), np.zeros((m - len_list[i], v)))) for i in range(b)])
+    x_mat = np.swapaxes(x_mat, 0, 1)
     y_mat = np.array([np.hstack((np.array(y[i]), np.zeros(m - len_list[i]))) for i in range(b)], dtype=int).T
     # create a mask of so that later we only accumulate cost for entries that actually correspond to letters
     mask = np.ones((m, b))
     for i in range(b):
         mask[len_list[i]:, i] = 0
-    return X_mat, mask, num_chars, y_mat
+    return x_mat, mask, num_chars, y_mat
