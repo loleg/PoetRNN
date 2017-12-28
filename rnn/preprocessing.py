@@ -23,10 +23,13 @@ letters = np.array(
 
 # generate letter to number dictionary
 def generate_dictionary(location):
-    with open(location, 'rb') as my_file:
-        reader = csv.reader(my_file)
+    with open(location, newline='') as my_file:
+        dialect = csv.Sniffer().sniff(my_file.read(1024))
+        my_file.seek(0)
+        reader = csv.reader(my_file, dialect)
         char_to_nums = {'\t': 0}
         for row in reader:
+            if len(row) == 0: continue
             for letter in row[0]:
                 if letter not in char_to_nums.keys():
                     char_to_nums[letter] = len(char_to_nums)
@@ -46,7 +49,7 @@ def poem_to_mat(poem, dictionary):
     vocab_length = len(dictionary)
     poem_mat = np.zeros((poem_length, vocab_length))
     vocab_list = [dictionary[s] for s in poem]
-    poem_mat[xrange(poem_length), vocab_list] = 1
+    poem_mat[range(poem_length), vocab_list] = 1
     return poem_mat
 
 

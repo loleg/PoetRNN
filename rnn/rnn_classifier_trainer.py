@@ -1,7 +1,7 @@
 import numpy as np
-import preprocessing as prep
+from . import preprocessing as prep
 import time
-import cPickle as pickle
+import pickle as pickle
 import os
 
 
@@ -66,7 +66,7 @@ class RNNClassifierTrainer(object):
         iter_to_update = kwargs.get('iter_to_update', 1)
         # unpack dictionary and strip it from the model
         dictionary = model['dictionary']
-        model = {k: v for k, v in model.iteritems() if k != 'dictionary'}
+        model = {k: v for k, v in model.items() if k != 'dictionary'}
         N = len(X)
         M = len(X_val_list)
         batch_val = True
@@ -86,15 +86,15 @@ class RNNClassifierTrainer(object):
         train_acc_history = []
         val_acc_history = []
         time_list = []
-        for it in xrange(num_iters):
+        for it in range(int(num_iters)):
             t0 = time.time()
             if it % iter_to_update == 0:
-                print 'starting iteration ', it
+                print('starting iteration ', it)
                 if it > 0:
                     avg_time = np.mean(np.array(time_list))
                     time_list = []
-                    print 'Average time per batch is %.3f seconds' % avg_time
-                    print 'Current training loss is %.3f' % cost
+                    print('Average time per batch is %.3f seconds' % avg_time)
+                    print('Current training loss is %.3f' % cost)
 
             # get batch of data
             if sample_batches:
@@ -207,13 +207,13 @@ class RNNClassifierTrainer(object):
                         best_model[p] = model[p].copy()
                     # save the model if it is best
                     filename = os.path.join(checkpoint_output_dir, 'checkpoint_%s_%.3f.p' % (fappend, val_loss))
-                    print 'Saving epoch %s model to file' % epoch
+                    print('Saving epoch %s model to file' % epoch)
                     pickle.dump(best_model, open(filename, 'wb'))
 
                     # print progress if needed
                 if verbose:
-                    print ('Finished epoch %d / %d: cost %f, train: %f, val %f, lr %e'
-                           % (epoch, num_epochs, cost, train_acc, val_acc, learning_rate))
+                    print(('Finished epoch %d / %d: cost %f, train: %f, val %f, lr %e'
+                           % (epoch, num_epochs, cost, train_acc, val_acc, learning_rate)))
 
         # always save the final model
         final_model = model.copy()
@@ -221,6 +221,6 @@ class RNNClassifierTrainer(object):
         filename = os.path.join(checkpoint_output_dir, 'finalcheckpoint_%s_%.3f.p' % (fappend, val_loss))
         pickle.dump(final_model, open(filename, 'wb'))
         if verbose:
-            print 'finished optimization. best validation loss: %f' % (best_val_loss)
+            print('finished optimization. best validation loss: %f' % (best_val_loss))
         # return the best model and the training history statistics
         return best_model, loss_history, train_acc_history, val_acc_history

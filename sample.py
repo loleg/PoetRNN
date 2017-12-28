@@ -24,7 +24,7 @@ def main(params):
 
     # generate poems
     poem_list = []
-    for i in xrange(params['num_poems']):
+    for i in range(params['num_poems']):
         poem = RNN.LSTM_sample(model, temp=params['temp'], seed=params['seed'], num_layers=num_layers)
         poem_list.append(poem)
 
