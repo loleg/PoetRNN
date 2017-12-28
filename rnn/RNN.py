@@ -12,9 +12,8 @@ def softmax_loss(X, y, mask=None, num_chars=None):
         num_chars = m * b
     probs = np.exp(X - np.amax(X, axis=-1, keepdims=True))
     probs /= np.sum(probs, axis=-1, keepdims=True)
-    # TODO: fixme
-    rows = np.array(range(m) * b, dtype=int).reshape((b, m)).T
-    cols = np.array(range(b) * m, dtype=int).reshape((m, b))
+    rows = np.array(list(range(m)) * b, dtype=int).reshape((b, m)).T
+    cols = np.array(list(range(b)) * m, dtype=int).reshape((m, b))
     # accumulate loss only from unmasked values
     loss = -np.sum(np.log(probs[rows, cols, y]) * mask) / num_chars
     grad = probs.copy()
