@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import os
 import json
-import cPickle as pickle
+import pickle as pickle
 import rnn.RNN as RNN
 
 
@@ -15,9 +15,9 @@ def main(params):
 
     # print model.dictionary
 
-    if 'WLSTM' in model.keys():
+    if 'WLSTM' in list(model.keys()):
         num_layers = 1
-    elif 'WLSTM1' in model.keys():
+    elif 'WLSTM1' in list(model.keys()):
         num_layers = 2
     else:
         raise ValueError('model is not one or two layer LSTM')
@@ -32,7 +32,7 @@ def main(params):
     # 0 and 2 indicate print so this works well
     if params['output'] % 2 == 0:
         for poem in poem_list:
-            print poem + '\n'
+            print(poem + '\n')
     if params['output'] > 0:
         filename = os.path.join('poems', params['output_filename'] + '.txt')
         with open(filename, 'wb') as my_file:
@@ -60,6 +60,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     params = vars(args)
-    print 'parsed parameters:'
-    print json.dumps(params, indent=2)
+    print('parsed parameters:')
+    print(json.dumps(params, indent=2))
     main(params)
