@@ -13,8 +13,6 @@ def main(params):
     filename = os.path.join('cv', params['model'])
     model = pickle.load(open(filename, 'rb'))
 
-    # print model.dictionary
-
     if 'WLSTM' in list(model.keys()):
         num_layers = 1
     elif 'WLSTM1' in list(model.keys()):
