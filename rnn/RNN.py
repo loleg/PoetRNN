@@ -1,6 +1,6 @@
 # First try at a "vanilla" RNN
 import numpy as np
-from preprocessing import reverse_dictionary, letters, letter_distribution
+from rnn.preprocessing import reverse_dictionary, letters, letter_distribution
 
 
 # a batched softmax function that can mask certain values
@@ -12,8 +12,8 @@ def softmax_loss(X, y, mask=None, num_chars=None):
         num_chars = m * b
     probs = np.exp(X - np.amax(X, axis=-1, keepdims=True))
     probs /= np.sum(probs, axis=-1, keepdims=True)
-    rows = np.array(range(m) * b, dtype=int).reshape((b, m)).T
-    cols = np.array(range(b) * m, dtype=int).reshape((m, b))
+    rows = np.array(list(range(m)) * b, dtype=int).reshape((b, m)).T
+    cols = np.array(list(range(b)) * m, dtype=int).reshape((m, b))
     # accumulate loss only from unmasked values
     loss = -np.sum(np.log(probs[rows, cols, y]) * mask) / num_chars
     grad = probs.copy()
@@ -66,7 +66,7 @@ class LSTM:
         # X is a (n,b,v) array where n=sequence length, b=batch size and v=vocab size
         cache = {}  # a cache of variables for backpropogation
         n, b, v = X.shape
-        d = WLSTM.shape[1] / 4  # hidden size
+        d = int(WLSTM.shape[1] / 4)  # hidden size
         # initialize c and h to zero if not given
         if c0 is None:
             c0 = np.zeros((b, d))
@@ -80,7 +80,7 @@ class LSTM:
         IFOGf = np.zeros((n, b, d * 4))  # after nonlinearity
         C = np.zeros((n, b, d))  # cell content
         Ct = np.zeros((n, b, d))  # tanh of cell content
-        for t in xrange(n):
+        for t in range(n):
             if t == 0:
                 prevh = h0
             else:
@@ -167,7 +167,7 @@ class LSTM:
 
         if drop_prob > 0:
             dHout *= cache['drop_mask']
-        for t in reversed(xrange(n)):
+        for t in reversed(range(n)):
             tanhCt = Ct[t]
             dIFOGf[t, :, 2 * d:3 * d] = dHout[t] * tanhCt
             dC[t] += (1.0 - tanhCt ** 2) * (dHout[t] * IFOGf[t, :, 2 * d:3 * d])
@@ -286,7 +286,7 @@ def LSTM_sample(model, temp=1.0, seed=None, max_length=1000, num_layers=2):
     # I hate that this seems so hacky. I should make this more modular 
     if num_layers == 2:
         # prime the model using the seed
-        for j in xrange(1, len(seed)):
+        for j in range(1, len(seed)):
             layer1_scores, cache1 = LSTM.batch_forward(x, model1, output_layer=False, h0=h1, c0=c1)
             Y, cache2 = LSTM.batch_forward(layer1_scores, model2, h0=h2, c0=c2)
             c1 = cache1['C'][0]
@@ -316,7 +316,7 @@ def LSTM_sample(model, temp=1.0, seed=None, max_length=1000, num_layers=2):
         return s
     if num_layers == 1:
         # prime model using the seed
-        for j in xrange(1, len(seed)):
+        for j in range(1, len(seed)):
             Y, cache = LSTM.batch_forward(x, model, h0=h1, c0=c1)
             c1 = cache['C'][0]
             h1 = cache['Houtstack'][0, :, 1:]

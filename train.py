@@ -8,7 +8,7 @@ import json
 import rnn.preprocessing as prep
 import rnn.RNN as RNN
 from rnn.rnn_classifier_trainer import *
-import cPickle as pickle
+import pickle as pickle
 
 
 def main(params):
@@ -24,9 +24,12 @@ def main(params):
     poems = []
     labels = []
 
-    with open(data_filename, 'rb') as my_file:
-        reader = csv.reader(my_file)
+    with open(data_filename, newline='') as my_file:
+        dialect = csv.Sniffer().sniff(my_file.read(1024))
+        my_file.seek(0)
+        reader = csv.reader(my_file, dialect)
         for row in reader:
+            if len(row) == 0: continue
             poem = prep.poem_to_mat(row[0], poem_dict)
             poems.append(poem)
     # generate the labels
@@ -62,12 +65,12 @@ def main(params):
     # load the model if model is given
     else:
         model = pickle.load(open(params['init_model'], 'rb'))
-        if 'WLSTM' in model.keys():
+        if 'WLSTM' in list(model.keys()):
             loss_function = RNN.LSTM_cost
-            print 'Loaded one layer LSTM model'
-        elif 'WLSTM1' in model.keys():
+            print('Loaded one layer LSTM model')
+        elif 'WLSTM1' in list(model.keys()):
             loss_function = RNN.two_layer_LSTM_cost
-            print 'Loaded two layer LSTM model'
+            print('Loaded two layer LSTM model')
         else:
             raise ValueError('model given is not one or two layer LSTM model')
     # train the model
@@ -126,6 +129,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     params = vars(args)
-    print 'parsed parameters:'
-    print json.dumps(params, indent=2)
+    print('parsed parameters:')
+    print(json.dumps(params, indent=2))
     main(params)
